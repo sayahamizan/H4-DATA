@@ -1,0 +1,22 @@
+name: Update H4 OHLC
+
+on:
+  schedule:
+    # Jalankan 5 minit selepas H4 close (UTC)
+    # 00:05, 04:05, 08:05, 12:05, 16:05, 20:05
+    - cron: '5 0,4,8,12,16,20 * * *'
+  workflow_dispatch:   # boleh run manual
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Run update
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python update_h4.py
