@@ -7,13 +7,13 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 
 # ============ CONFIG ============
-SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE"   # ambil dari URL Sheet
+SPREADSHEET_ID = "18eauVO0BD8RUNMPubv04OMRDtnt4SZrKWOSObP8Ju00"   # ambil dari URL Sheet
 # Senarai pair (nama tab mesti sama dengan symbol)
 PAIRS = [
     "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
     "EURGBP", "EURJPY", "GBPJPY", "AUDJPY", "EURCHF", "GBPCHF", "CADJPY",
     "AUDCAD", "AUDCHF", "AUDNZD", "CADCHF", "EURAUD", "EURCAD", "EURNZD",
-    "GBPAUD", "GBPCAD", "GBPCHF", "GBPNZD", "NZDCAD", "NZDCHF", "NZDJPY",
+    "GBPAUD", "GBPCAD", "CHFJPY", "GBPNZD", "NZDCAD", "NZDCHF", "NZDJPY",
     "XAUUSD"
 ]
 INTERVAL = "4h"
