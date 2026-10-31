@@ -1,0 +1,21 @@
+name: Update Daily OHLC
+
+on:
+  schedule:
+    # Jalankan sekali sehari, selepas daily close (contoh: 00:10 UTC)
+    - cron: '10 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Run Daily Update
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python update_daily.py
