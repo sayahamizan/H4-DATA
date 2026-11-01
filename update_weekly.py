@@ -14,7 +14,8 @@ PAIRS = [
     "GBPAUD", "GBPCAD", "CHFJPY", "GBPNZD", "NZDCAD", "NZDCHF", "NZDJPY",
     "XAUUSD"
 ]
-LIMIT = 300   # cukup untuk beberapa bulan daily
+INTERVAL = "1week"
+OUTPUTSIZE = 100
 # ================================
 
 def get_gspread_client():
@@ -24,37 +25,42 @@ def get_gspread_client():
     creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
     return gspread.authorize(creds)
 
-def fetch_daily(symbol: str) -> pd.DataFrame:
-    url = f"https://biquote.io/api/{symbol}/ohlc"
-    params = {"interval": "1d", "limit": LIMIT}
+def fetch_weekly(symbol: str, api_key: str) -> pd.DataFrame:
+    url = "https://api.twelvedata.com/time_series"
+    params = {
+        "symbol": symbol,
+        "interval": INTERVAL,
+        "outputsize": OUTPUTSIZE,
+        "apikey": api_key,
+        "format": "JSON",
+        "order": "ASC"
+    }
     r = requests.get(url, params=params, timeout=30)
     r.raise_for_status()
     data = r.json()
-    df = pd.DataFrame(data.get("bars", []))
-    if df.empty:
-        return df
-    df = df[df["isOpen"] == False]
-    df["Date"] = pd.to_datetime(df["openTime"])
-    df = df.set_index("Date").sort_index()
-    df = df[["open", "high", "low", "close"]]
-    return df
 
-def to_weekly(df_daily: pd.DataFrame) -> pd.DataFrame:
-    """Resample Daily → Weekly (Isnin sebagai start week)"""
-    if df_daily.empty:
-        return df_daily
-    weekly = df_daily.resample("W-MON", label="left", closed="left").agg({
-        "open": "first",
-        "high": "max",
-        "low": "min",
-        "close": "last"
-    }).dropna()
-    weekly = weekly.reset_index()
-    weekly["Date"] = weekly["Date"].dt.strftime("%Y-%m-%d")
-    weekly = weekly[["Date", "open", "high", "low", "close"]].rename(
-        columns={"open": "Open", "high": "High", "low": "Low", "close": "Close"}
-    )
-    return weekly
+    if data.get("status") == "error":
+        print(f"  API Error: {data.get('message')}")
+        return pd.DataFrame()
+
+    values = data.get("values", [])
+    if not values:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(values)
+    df = df.rename(columns={
+        "datetime": "Date",
+        "open": "Open",
+        "high": "High",
+        "low": "Low",
+        "close": "Close"
+    })
+    df = df[["Date", "Open", "High", "Low", "Close"]]
+    # Pastikan numeric
+    for col in ["Open", "High", "Low", "Close"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    df["Date"] = pd.to_datetime(df["Date"]).dt.strftime("%Y-%m-%d")
+    return df.sort_values("Date").reset_index(drop=True)
 
 def get_last_date(ws):
     try:
@@ -77,7 +83,8 @@ def append_new_candles(ws, df: pd.DataFrame, last_date):
     return len(df)
 
 def main():
-    print("=== Start Append New Weekly Candles ===")
+    print("=== Start Append New Weekly Candles (Twelve Data) ===")
+    api_key = os.environ["TWELVEDATA_API_KEY"]
     gc = get_gspread_client()
     sh = gc.open_by_key(SPREADSHEET_ID)
 
@@ -91,13 +98,12 @@ def main():
             else:
                 print("  Sheet kosong / tiada data lama")
 
-            df_daily = fetch_daily(symbol)
-            if df_daily.empty:
-                print("  Tiada data daily")
+            df = fetch_weekly(symbol, api_key)
+            if df.empty:
+                print("  Tiada data dari API")
                 continue
 
-            df_weekly = to_weekly(df_daily)
-            added = append_new_candles(ws, df_weekly, last_date)
+            added = append_new_candles(ws, df, last_date)
             print(f"  ✓ Added {added} new weekly candle(s)")
 
         except gspread.WorksheetNotFound:
