@@ -2,7 +2,7 @@ name: Update Weekly OHLC
 
 on:
   schedule:
-    # Setiap Isnin 00:15 UTC (selepas weekly close)
+    # Setiap Isnin 00:15 UTC
     - cron: '15 0 * * 1'
   workflow_dispatch:
 
@@ -18,4 +18,5 @@ jobs:
       - name: Run Weekly Update
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
         run: python update_weekly.py
