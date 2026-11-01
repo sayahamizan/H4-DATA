@@ -1,0 +1,21 @@
+name: Update Weekly OHLC
+
+on:
+  schedule:
+    # Setiap Isnin 00:15 UTC (selepas weekly close)
+    - cron: '15 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Run Weekly Update
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python update_weekly.py
