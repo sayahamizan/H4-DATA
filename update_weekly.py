@@ -7,7 +7,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 # ============ CONFIG ============
-SPREADSHEET_ID = "YOUR_WEEKLY_SPREADSHEET_ID_HERE"   # Ganti
+SPREADSHEET_ID = "1oL7IA8m3cKMeP3yyM6E8vwB4nl4rAZ_IjgLACxF7lFo"   # Ganti
 PAIRS = [
     "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
     "EURGBP", "EURJPY", "GBPJPY", "AUDJPY", "EURCHF", "GBPCHF", "CADJPY",
