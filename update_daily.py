@@ -75,7 +75,13 @@ def fetch_daily(symbol: str, api_key: str) -> pd.DataFrame:
     df = df[["Date", "Open", "High", "Low", "Close"]]
     for col in ["Open", "High", "Low", "Close"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
-    df["Date"] = pd.to_datetime(df["Date"]).dt.strftime("%Y-%m-%d")
+        df["Date"] = pd.to_datetime(df["Date"]).dt.strftime("%Y-%m-%d %H:%M")
+    df = df.sort_values("Date").reset_index(drop=True)
+
+    # Buang candle paling latest (masih open)
+    if len(df) > 1:
+        df = df.iloc[:-1]
+
     return df.sort_values("Date").reset_index(drop=True)
 
 def get_last_date(ws):
