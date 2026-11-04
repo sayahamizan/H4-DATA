@@ -2,7 +2,7 @@ name: Update Daily OHLC
 
 on:
   schedule:
-    # Jalankan sekali sehari, selepas daily close (contoh: 00:10 UTC)
+    # Setiap hari 00:10 UTC (08:10 pagi Malaysia)
     - cron: '10 0 * * *'
   workflow_dispatch:
 
@@ -18,4 +18,5 @@ jobs:
       - name: Run Daily Update
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
         run: python update_daily.py
