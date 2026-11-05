@@ -2,8 +2,8 @@ name: Update Weekly OHLC
 
 on:
   schedule:
-    # Setiap Isnin 00:40 UTC
-    - cron: '40 0 * * 1'
+    # Setiap Isnin 01:10 UTC
+    - cron: '10 1 * * 1'
   workflow_dispatch:
 
 jobs:
