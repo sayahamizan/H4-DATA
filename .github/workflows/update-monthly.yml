@@ -2,8 +2,8 @@ name: Update Monthly OHLC
 
 on:
   schedule:
-    # Setiap 1hb bulan, 00:50 UTC
-    - cron: '50 0 1 * *'
+    # Setiap 1hb bulan, 01:40 UTC
+    - cron: '40 1 1 * *'
   workflow_dispatch:
 
 jobs:
